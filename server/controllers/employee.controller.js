@@ -2,9 +2,26 @@ const StatusCodes = require("http-status-codes").StatusCodes;
 
 const employeeService = require("../services/employee.service.js");
 const addEmployee = async (req, res) => {
+  // check email is exists
+  const existingEmployee = await employeeService.checkEmployeeList(
+    req.body.email
+  );
+  if (existingEmployee) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: "Email already exists" });
+  }
   try {
     const employee = await employeeService.addEmployee(req.body);
-    res.status(StatusCodes.CREATED).json(employee);
+    // if employee is not added
+    if (!employee) {
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: "Failed to add employee" });
+    }
+    res
+      .status(StatusCodes.CREATED)
+      .json({ employee, message: "Employee added successfully" });
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
