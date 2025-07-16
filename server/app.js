@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 // Middleware to enable CORS
 app.use(cors());
-const router=require( "./routes/index.js");
+const router = require("./routes/index.js");
 app.use(router);
 const port = process.env.PORT;
 // Sample route

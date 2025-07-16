@@ -6,8 +6,8 @@ const router = express.Router();
 
 // Use the install routes
 router.use(installRoutes);
-router.use('/api/employee',employeeRoutes);
+router.use("/api/employee", employeeRoutes);
 // Use the login routes
-router.use('/api/employee',loginRoutes);
+router.use("/api/employee", loginRoutes);
 // Export the router
 module.exports = router;

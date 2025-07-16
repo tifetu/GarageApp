@@ -1,55 +1,90 @@
-// login service using async function
-const dbconfig = require("../config/db.config.js");
-const { StatusCodes } = require("http-status-codes");
+const { query } = require("../config/db.config");
+
+const empoyeeData = require("../services/employee.service");
+
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
-const login = async (email, password) => {
-  let finalmessage = {};
+// async function login(employeeData) {
+//   try {
+//     const employeeInfo = await empoyeeData.getEmployeeByEmail(
+//       employeeData.employee_email
+//     );
+//     let returnData = {};
+//     if (employeeInfo.length == 0) {
+//       returnData = {
+//         status: "Fail",
+//         message: "Employee does not exist",
+//       };
+
+//       return returnData;
+//     }
+//     const passwordMatch = await bcrypt.compare(
+//       employeeData.employee_password,
+//       employeeInfo[0].employee_password_hashed
+//     );
+
+//     if (!passwordMatch) {
+//       returnData = {
+//         status: "Fail",
+//         message: "Incorrect password",
+//       };
+//       return returnData;
+//     }
+
+//     returnData = {
+//       status: "Success",
+//       data: employeeInfo[0],
+//     };
+//     return returnData;
+//   } catch (error) {
+//     console.log("error", error);
+//   }
+// }
+async function login(employeeData) {
   try {
-    //step 1: get employee by email
-    cosnt[rows] = await dbconfig.query(
-      "SELECT employee.employee_id, employee_pass.employee_password_hashed FROM employee  JOIN employee_pass  ON employee.employee_id = employee_pass.employee_id WHERE employee.employee_email = ?",
-      [email]
+    const employeeInfo = await empoyeeData.getEmployeeByEmail(
+      employeeData.employee_email
     );
 
-    if (rows.length === 0) {
-      finalmessage.message = "User not found.";
-      finalmessage.status = StatusCodes.UNAUTHORIZED;
-      return finalmessage;
+    if (employeeInfo.length === 0) {
+      return {
+        status: "Fail",
+        message: "Employee does not exist",
+      };
+    }
+    if (
+      !employeeData.employee_password ||
+      !employeeInfo[0]?.employee_password_hashed
+    ) {
+      return {
+        status: "Fail",
+        message: "Missing password data",
+      };
     }
 
-    // Compare the password with the hashed password in the database
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      rows[0].employee_password_hashed
+    const passwordMatch = await bcrypt.compare(
+      employeeData.employee_password,
+      employeeInfo[0].employee_password_hashed
     );
 
-    if (!isPasswordValid) {
-      finalmessage.message = "Invalid password.";
-      finalmessage.status = StatusCodes.UNAUTHORIZED;
-      return finalmessage;
+    if (!passwordMatch) {
+      return {
+        status: "Fail",
+        message: "Incorrect password",
+      };
     }
 
-    // Generate a JWT token
-    const token = jwt.sign(
-      { id: rows[0].employee_id },
-      process.env.JWT_SECRET || "secret",
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    finalmessage.message = "Login successful.";
-    finalmessage.status = StatusCodes.OK;
-    finalmessage.token = token;
+    return {
+      status: "Success",
+      data: employeeInfo[0],
+    };
   } catch (error) {
-    console.error("Error during login:", error);
-    finalmessage.message = "An error occurred during login.";
-    finalmessage.status = StatusCodes.INTERNAL_SERVER_ERROR;
+    console.error("Login Service Error:", error);
+    return {
+      status: "Fail",
+      message: "Something went wrong during login",
+    };
   }
+}
 
-  return finalmessage;
-};
-// Export the login service
 module.exports = { login };

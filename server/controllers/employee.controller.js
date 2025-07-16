@@ -2,10 +2,17 @@ const StatusCodes = require("http-status-codes").StatusCodes;
 
 const employeeService = require("../services/employee.service.js");
 const addEmployee = async (req, res) => {
+  // Validate the request body
+  if (!req.body || !req.body.employee_email) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: "Invalid request: employee_email is required" });
+  }
   // check email is exists
   const existingEmployee = await employeeService.checkEmployeeList(
-    req.body.email
+    req.body.employee_email
   );
+
   if (existingEmployee) {
     return res
       .status(StatusCodes.BAD_REQUEST)
@@ -14,14 +21,15 @@ const addEmployee = async (req, res) => {
   try {
     const employee = await employeeService.addEmployee(req.body);
     // if employee is not added
-    if (!employee) {
+    if (employee) {
       return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to add employee" });
+        .status(StatusCodes.CREATED)
+        .json({ message: "Employee added successfully" });
+    } else {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "faild add employee" });
     }
-    res
-      .status(StatusCodes.CREATED)
-      .json({ employee, message: "Employee added successfully" });
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)

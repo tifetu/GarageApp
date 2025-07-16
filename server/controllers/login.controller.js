@@ -1,20 +1,42 @@
-// import login service from "../services/login.service.js";
-const loginService = require("../services/login.service.js");
-const { StatusCodes } = require("http-status-codes");
-// Define the login controller
-const login = async (req, res) => {
+const loginService = require("../services/login.service");
+const jwt = require("jsonwebtoken");
+const Jwt_secret = process.env.JWT_SECRET;
+
+async function login(req, res, next) {
   try {
-    const { email, password } = req.body;
-    const user = await loginService.login(email, password);
-    res.status(StatusCodes.OK).json({
-      message: "Login successful",
-      user,
+    console.log(req.body);
+    const employee = await loginService.login(req.body);
+
+    if (employee.status === "Fail") {
+      return res.status(403).json({
+        status: employee.status,
+        message: employee.message,
+      });
+    }
+
+    payload = {
+      employee_id: employee.data.employee_id,
+      employee_email: employee.data.employee_email,
+      employee_first_name: employee.data.employee_first_name,
+      employee_role: employee.data.company_role_id,
+    };
+
+    const token = jwt.sign(payload, Jwt_secret, { expiresIn: "24h" });
+
+    return res.status(200).json({
+      status: employee.status,
+      message: "Employee logged in",
+      data: {
+        token: token,
+      },
     });
   } catch (error) {
-    res.status(StatusCodes.UNAUTHORIZED).json({
-      message: error.message,
+    console.log("loginC", error);
+    return res.status(500).json({
+      status: "Fail",
+      message: "Internal server error",
     });
   }
-};
-//Export the login controller
+}
+
 module.exports = { login };
