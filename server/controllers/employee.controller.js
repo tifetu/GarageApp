@@ -62,19 +62,53 @@ const getEmployeeById = async (req, res) => {
 };
 const updateEmployee = async (req, res) => {
   try {
+    const employeeId = req.params.employeeId;
+
+    if (!employeeId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "Employee ID is required",
+      });
+    }
+
+    // Validate required fields
+    // const requiredFields = [
+    //   "employee_email",
+    //   "employee_first_name",
+    //   "employee_last_name",
+    // ];
+    // const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    // if (missingFields.length > 0) {
+    //   return res.status(StatusCodes.BAD_REQUEST).json({
+    //     message: `Missing required fields: ${missingFields.join(", ")}`,
+    //   });
+    // }
+
     const updatedEmployee = await employeeService.updateEmployee(
-      req.params.id,
+      employeeId,
       req.body
     );
-    if (updatedEmployee) {
-      res.status(StatusCodes.OK).json(updatedEmployee);
-    } else {
-      res.status(StatusCodes.NOT_FOUND).json({ message: "Employee not found" });
+
+    if (!updatedEmployee) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: "Employee not found",
+      });
     }
+
+    return res.status(StatusCodes.OK).json({
+      message: "Employee updated successfully",
+      data: updatedEmployee,
+    });
   } catch (error) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+    console.error("Error in updateEmployee controller:", error);
+
+    const statusCode = error.message.includes("not found")
+      ? StatusCodes.NOT_FOUND
+      : StatusCodes.INTERNAL_SERVER_ERROR;
+
+    return res.status(statusCode).json({
+      message: error.message || "Failed to update employee",
+    });
   }
 };
 const deleteEmployee = async (req, res) => {

@@ -4,13 +4,13 @@ const router = express.Router();
 const employeeController = require("../controllers/employee.controller.js");
 // add auth middleware if needed
 const authMiddleware = require("../middlewares/auth.middleware.js");
-router.post("/add-employee",  employeeController.addEmployee);
-router.get("/employees", authMiddleware, employeeController.getEmployees);
-router.get("/employee/:id", authMiddleware, employeeController.getEmployeeById);
-router.put("/employee/:id", authMiddleware, employeeController.updateEmployee);
+router.post("/add-employee", employeeController.addEmployee);
+router.get("/employees", employeeController.getEmployees);
+router.get("/:id", employeeController.getEmployeeById);
+router.put("/:employeeId", employeeController.updateEmployee);
 router.delete(
-  "/employee/:id",
-  authMiddleware,
+  "/:id",
+
   employeeController.deleteEmployee
 );
 // router.get("/search-employees", employeeController.searchEmployees);

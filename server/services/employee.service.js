@@ -162,33 +162,73 @@ const getEmployeeById = async (id) => {
 };
 
 // Update an employee by ID
-const updateEmployee = async (id, employeeData) => {
+const updateEmployee = async (employeeId, employeeData) => {
   const conn = await getConnection();
   try {
     await conn.beginTransaction();
 
-    const query = "UPDATE employee SET ? WHERE id = ?";
-    const [result] = await conn.query(query, [employeeData, id]);
+    // First update employee table - FIXED SQL SYNTAX
+    const [employeeResult] = await conn.query(
+      "UPDATE employee SET employee_email = ?, active_employee = ? WHERE employee_id = ?",
+      [
+        employeeData.employee_email,
+        employeeData.active_employee || 1, // Default to active if not provided
+        employeeId,
+      ]
+    );
 
-    if (result.affectedRows === 0) {
+    if (employeeResult.affectedRows === 0) {
       throw new Error("Employee not found");
     }
 
-    // If password is being updated
-    if (employeeData.employee_password) {
+    // Update employee_info table
+    await conn.query(
+      "UPDATE employee_info SET employee_first_name = ?, employee_last_name = ?, employee_phone = ? WHERE employee_id = ?",
+      [
+        employeeData.employee_first_name,
+        employeeData.employee_last_name,
+        employeeData.employee_phone,
+        employeeId,
+      ]
+    );
+
+    // Update password if provided
+    if (employeeData.employee_password_hashed) {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(
-        employeeData.employee_password,
+        employeeData.employee_password_hashed,
         salt
       );
 
-      const passwordQuery =
-        "UPDATE employee_password SET employee_password = ? WHERE employee_id = ?";
-      await conn.query(passwordQuery, [hashedPassword, id]);
+      await conn.query(
+        "UPDATE employee_pass SET employee_password_hashed = ? WHERE employee_id = ?",
+        [hashedPassword, employeeId]
+      );
+    }
+
+    // Update role if provided
+    if (employeeData.company_role_id) {
+      await conn.query(
+        "UPDATE employee_role SET company_role_id = ? WHERE employee_id = ?",
+        [employeeData.company_role_id, employeeId]
+      );
     }
 
     await conn.commit();
-    return { id, ...employeeData };
+
+    // Return updated employee data
+    const [updatedEmployee] = await conn.query(
+      `SELECT e.employee_id, e.employee_email, e.active_employee, 
+       ei.employee_first_name, ei.employee_last_name, ei.employee_phone, 
+       er.company_role_id 
+       FROM employee e
+       JOIN employee_info ei ON e.employee_id = ei.employee_id
+       JOIN employee_role er ON e.employee_id = er.employee_id
+       WHERE e.employee_id = ?`,
+      [employeeId]
+    );
+
+    return updatedEmployee[0];
   } catch (error) {
     await conn.rollback();
     console.error("Error updating employee:", error);
@@ -206,13 +246,13 @@ const deleteEmployee = async (id) => {
 
     // First delete from related tables
     await conn.query("DELETE FROM employee_info WHERE employee_id = ?", [id]);
-    await conn.query("DELETE FROM employee_password WHERE employee_id = ?", [
+    await conn.query("DELETE FROM employee_pass WHERE employee_id = ?", [
       id,
     ]);
     await conn.query("DELETE FROM employee_role WHERE employee_id = ?", [id]);
 
     // Then delete from main employee table
-    const query = "DELETE FROM employee WHERE id = ?";
+    const query = "DELETE FROM employee WHERE employee_id = ?";
     const [result] = await conn.query(query, [id]);
 
     await conn.commit();
