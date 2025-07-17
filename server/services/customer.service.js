@@ -2,12 +2,16 @@ const { getConnection } = require("../config/db.config");
 const bcrypt = require("bcrypt");
 // function create
 async function checkIfCustomerExist(email) {
-  const sql = "SELECT *FROM customer_identifier WHERE customer_email=?";
-  const check = await query(sql, [email]);
-  if (check.length > 0) {
-    return true;
-  } else {
-    return false;
+  const conn = await getConnection(); // Get a database connection
+  try {
+    const sql = "SELECT * FROM customer_identifier WHERE customer_email=?";
+    const [check] = await conn.query(sql, [email]); // Use the connection to execute the query
+    return check.length > 0;
+  } catch (error) {
+    console.error("Error checking if customer exists:", error);
+    throw error;
+  } finally {
+    conn.release(); // Release the connection
   }
 }
 async function createCustomer(customerData) {
