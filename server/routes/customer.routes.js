@@ -6,25 +6,25 @@ const customerController = require("../controllers/customer.controller.js");
 const authMiddleware = require("../middlewares/auth.middleware.js");
 
 // Create a new customer
-router.post("/add-customer", authMiddleware, customerController.createCustomer);
+router.post("/add-customer", customerController.createCustomer);
 // Get all customers
-router.get("/customers", authMiddleware, customerController.getCustomers);
+router.get("/customers", customerController.getAllCustomers);
 // Get a customer by ID
-router.get("/customer/:id", authMiddleware, customerController.getCustomerById);
+router.get("/:customerId", customerController.getCustomerById);
 // Update a customer by ID
-router.put("/customer/:id", authMiddleware, customerController.updateCustomer);
+router.put("/:customerId", customerController.updateCustomer);
 // Delete a customer by ID
 router.delete(
-  "/customer/:id",
-  authMiddleware,
+  "/:customerId",
+
   customerController.deleteCustomer
 );
 // Search customers by name
-router.get(
-  "/search-customers",
-  authMiddleware,
-  customerController.searchCustomers
-);
+// router.get(
+//   "/search-customers",
+//   authMiddleware,
+//   customerController.searchCustomers
+// );
 
 // export
 module.exports = router;
