@@ -4,7 +4,18 @@ const Jwt_secret = process.env.JWT_SECRET;
 
 async function login(req, res, next) {
   try {
-    console.log(req.body);
+    if (
+      !req.body ||
+      !req.body.employee_email ||
+      !req.body.employee_password_hashed
+    ) {
+      return res.status(400).json({
+        status: "Fail",
+        message:
+          "Missing required fields: employee_email and employee_password_hashed",
+      });
+    }
+
     const employee = await loginService.login(req.body);
 
     if (employee.status === "Fail") {
@@ -14,7 +25,7 @@ async function login(req, res, next) {
       });
     }
 
-    payload = {
+    const payload = {
       employee_id: employee.data.employee_id,
       employee_email: employee.data.employee_email,
       employee_first_name: employee.data.employee_first_name,
@@ -31,7 +42,7 @@ async function login(req, res, next) {
       },
     });
   } catch (error) {
-    console.log("loginC", error);
+    console.error("Login Controller Error:", error);
     return res.status(500).json({
       status: "Fail",
       message: "Internal server error",

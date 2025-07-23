@@ -30,6 +30,19 @@ const addEmployee = async (employeeData) => {
       throw new Error("Employee with this email already exists");
     }
 
+    // Debugging: Log company_role_id
+    console.log("Provided company_role_id:", employeeData.company_role_id);
+
+    // Validate company_role_id
+    const roleExistsQuery =
+      "SELECT * FROM company_roles WHERE company_role_id = ?";
+    const [roleRows] = await conn.query(roleExistsQuery, [
+      employeeData.company_role_id,
+    ]);
+    if (roleRows.length === 0) {
+      throw new Error("Invalid company_role_id");
+    }
+
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(
@@ -99,13 +112,16 @@ const addEmployee = async (employeeData) => {
   } finally {
     conn.release();
   }
+  // Return the added employee data
+  return employee;
 };
 
 // Get all employees
 const getEmployees = async () => {
   const conn = await getConnection();
   try {
-    const query = "SELECT * FROM employee";
+    const query =
+      "SELECT employee.employee_email, employee.active_employee,employee.added_date, employee_info.employee_first_name, employee_info.employee_last_name, employee_info.employee_phone,  employee_role.company_role_id FROM employee JOIN employee_info ON employee.employee_id = employee_info.employee_id JOIN employee_pass ON employee.employee_id = employee_pass.employee_id JOIN employee_role ON employee.employee_id = employee_role.employee_id";
     const [rows] = await conn.query(query);
     return rows;
   } catch (error) {
@@ -246,9 +262,7 @@ const deleteEmployee = async (id) => {
 
     // First delete from related tables
     await conn.query("DELETE FROM employee_info WHERE employee_id = ?", [id]);
-    await conn.query("DELETE FROM employee_pass WHERE employee_id = ?", [
-      id,
-    ]);
+    await conn.query("DELETE FROM employee_pass WHERE employee_id = ?", [id]);
     await conn.query("DELETE FROM employee_role WHERE employee_id = ?", [id]);
 
     // Then delete from main employee table

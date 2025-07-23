@@ -42,20 +42,26 @@ const bcrypt = require("bcrypt");
 // }
 async function login(employeeData) {
   try {
+    console.log("Received employee data:", employeeData);
+
     const employeeInfo = await empoyeeData.getEmployeeByEmail(
       employeeData.employee_email
     );
 
+    console.log("Fetched employee info:", employeeInfo);
+
     if (employeeInfo.length === 0) {
+      console.log("Employee does not exist.");
       return {
         status: "Fail",
         message: "Employee does not exist",
       };
     }
     if (
-      !employeeData.employee_password ||
+      !employeeData.employee_password_hashed ||
       !employeeInfo[0]?.employee_password_hashed
     ) {
+      console.log("Missing password data.");
       return {
         status: "Fail",
         message: "Missing password data",
@@ -63,11 +69,14 @@ async function login(employeeData) {
     }
 
     const passwordMatch = await bcrypt.compare(
-      employeeData.employee_password,
+      employeeData.employee_password_hashed,
       employeeInfo[0].employee_password_hashed
     );
 
+    console.log("Password match result:", passwordMatch);
+
     if (!passwordMatch) {
+      console.log("Incorrect password.");
       return {
         status: "Fail",
         message: "Incorrect password",
