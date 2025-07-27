@@ -48,47 +48,40 @@ const getEmployees = async (req, res) => {
 };
 const getEmployeeById = async (req, res) => {
   try {
-    const employee = await employeeService.getEmployeeById(req.params.id);
+    const employeeId = req.params.id;
+
+    if (!employeeId || employeeId === "undefined") {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "Employee ID is required and must be valid",
+      });
+    }
+
+    const employee = await employeeService.getEmployeeById(employeeId);
     if (employee) {
-      res.status(StatusCodes.OK).json(employee);
+      return res.status(StatusCodes.OK).json(employee);
     } else {
-      res.status(StatusCodes.NOT_FOUND).json({ message: "Employee not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: `Employee not found with ID: ${employeeId}`,
+      });
     }
   } catch (error) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+    console.error("Error in getEmployeeById controller:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: error.message || "Failed to fetch employee",
+    });
   }
 };
 const updateEmployee = async (req, res) => {
   try {
-    const employeeId = req.params.employeeId;
+    const id = req.params.id;
 
-    if (!employeeId) {
+    if (!id) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: "Employee ID is required",
       });
     }
 
-    // Validate required fields
-    // const requiredFields = [
-    //   "employee_email",
-    //   "employee_first_name",
-    //   "employee_last_name",
-    // ];
-    // const missingFields = requiredFields.filter((field) => !req.body[field]);
-
-    // if (missingFields.length > 0) {
-    //   return res.status(StatusCodes.BAD_REQUEST).json({
-    //     message: `Missing required fields: ${missingFields.join(", ")}`,
-    //   });
-    // }
-
-    const updatedEmployee = await employeeService.updateEmployee(
-      employeeId,
-      req.body
-    );
-
+    const updatedEmployee = await employeeService.updateEmployee(id, req.body);
     if (!updatedEmployee) {
       return res.status(StatusCodes.NOT_FOUND).json({
         message: "Employee not found",
@@ -101,12 +94,7 @@ const updateEmployee = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in updateEmployee controller:", error);
-
-    const statusCode = error.message.includes("not found")
-      ? StatusCodes.NOT_FOUND
-      : StatusCodes.INTERNAL_SERVER_ERROR;
-
-    return res.status(statusCode).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: error.message || "Failed to update employee",
     });
   }
@@ -115,9 +103,14 @@ const deleteEmployee = async (req, res) => {
   try {
     const result = await employeeService.deleteEmployee(req.params.id);
     if (result) {
-      res.status(204).send();
+      res
+        .status(StatusCodes.OK)
+        .send({ message: "Employee deleted successfully" });
     } else {
-      res.status(StatusCodes.NOT_FOUND).json({ message: "Employee not found" });
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message:
+          "Cannot delete employee. They are associated with existing orders.",
+      });
     }
   } catch (error) {
     res
@@ -126,7 +119,6 @@ const deleteEmployee = async (req, res) => {
   }
 };
 
-// export default {
 module.exports = {
   addEmployee,
   getEmployees,

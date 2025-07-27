@@ -6,11 +6,10 @@ const employeeController = require("../controllers/employee.controller.js");
 const authMiddleware = require("../middlewares/auth.middleware.js");
 router.post("/add-employee", employeeController.addEmployee);
 router.get("/employees", employeeController.getEmployees);
-router.get("/employees:id", employeeController.getEmployeeById);
-router.put("/:employeeId", employeeController.updateEmployee);
+router.get("/:id", employeeController.getEmployeeById);
+router.put("/:id", employeeController.updateEmployee);
 router.delete(
   "/:id",
-
   employeeController.deleteEmployee
 );
 // router.get("/search-employees", employeeController.searchEmployees);

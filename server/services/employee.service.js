@@ -121,7 +121,7 @@ const getEmployees = async () => {
   const conn = await getConnection();
   try {
     const query =
-      "SELECT employee.employee_email, employee.active_employee,employee.added_date, employee_info.employee_first_name, employee_info.employee_last_name, employee_info.employee_phone,  employee_role.company_role_id FROM employee JOIN employee_info ON employee.employee_id = employee_info.employee_id JOIN employee_pass ON employee.employee_id = employee_pass.employee_id JOIN employee_role ON employee.employee_id = employee_role.employee_id";
+      "SELECT employee.employee_id, employee.employee_email, employee.active_employee,employee.added_date, employee_info.employee_first_name, employee_info.employee_last_name, employee_info.employee_phone,  employee_role.company_role_id FROM employee JOIN employee_info ON employee.employee_id = employee_info.employee_id JOIN employee_pass ON employee.employee_id = employee_pass.employee_id JOIN employee_role ON employee.employee_id = employee_role.employee_id";
     const [rows] = await conn.query(query);
     return rows;
   } catch (error) {
@@ -163,8 +163,29 @@ async function getEmployeeByEmail(email) {
 const getEmployeeById = async (id) => {
   const conn = await getConnection();
   try {
-    const query = "SELECT * FROM employee WHERE id = ?";
-    const [rows] = await conn.query(query, [id]);
+    const sql = `
+    SELECT 
+        employee.employee_id, 
+        employee.employee_email, 
+        employee.active_employee, 
+        employee.added_date,
+        employee_info.employee_first_name, 
+        employee_info.employee_last_name, 
+        employee_info.employee_phone, 
+        employee_pass.employee_password_hashed, 
+        employee_role.company_role_id
+    FROM 
+        employee 
+    JOIN 
+        employee_info ON employee.employee_id = employee_info.employee_id
+    JOIN 
+        employee_pass ON employee.employee_id = employee_pass.employee_id
+    JOIN 
+        employee_role ON employee.employee_id = employee_role.employee_id
+    WHERE 
+        employee.employee_id = ?;
+`;
+    const [rows] = await conn.query(sql, [id]);
     if (rows.length === 0) {
       throw new Error("Employee not found");
     }
@@ -178,22 +199,29 @@ const getEmployeeById = async (id) => {
 };
 
 // Update an employee by ID
-const updateEmployee = async (employeeId, employeeData) => {
+const updateEmployee = async (id, employeeData) => {
   const conn = await getConnection();
   try {
     await conn.beginTransaction();
 
     // First update employee table - FIXED SQL SYNTAX
+    console.log(
+      "Updating employee table with ID:",
+      id,
+      "and data:",
+      employeeData
+    );
     const [employeeResult] = await conn.query(
       "UPDATE employee SET employee_email = ?, active_employee = ? WHERE employee_id = ?",
       [
         employeeData.employee_email,
         employeeData.active_employee || 1, // Default to active if not provided
-        employeeId,
+        id,
       ]
     );
 
     if (employeeResult.affectedRows === 0) {
+      console.error("Employee not found for ID:", id);
       throw new Error("Employee not found");
     }
 
@@ -204,7 +232,7 @@ const updateEmployee = async (employeeId, employeeData) => {
         employeeData.employee_first_name,
         employeeData.employee_last_name,
         employeeData.employee_phone,
-        employeeId,
+        id,
       ]
     );
 
@@ -218,7 +246,7 @@ const updateEmployee = async (employeeId, employeeData) => {
 
       await conn.query(
         "UPDATE employee_pass SET employee_password_hashed = ? WHERE employee_id = ?",
-        [hashedPassword, employeeId]
+        [hashedPassword, id]
       );
     }
 
@@ -226,7 +254,7 @@ const updateEmployee = async (employeeId, employeeData) => {
     if (employeeData.company_role_id) {
       await conn.query(
         "UPDATE employee_role SET company_role_id = ? WHERE employee_id = ?",
-        [employeeData.company_role_id, employeeId]
+        [employeeData.company_role_id, id]
       );
     }
 
@@ -241,7 +269,7 @@ const updateEmployee = async (employeeId, employeeData) => {
        JOIN employee_info ei ON e.employee_id = ei.employee_id
        JOIN employee_role er ON e.employee_id = er.employee_id
        WHERE e.employee_id = ?`,
-      [employeeId]
+      [id]
     );
 
     return updatedEmployee[0];
@@ -255,30 +283,86 @@ const updateEmployee = async (employeeId, employeeData) => {
 };
 
 // Delete an employee by ID
-const deleteEmployee = async (id) => {
-  const conn = await getConnection();
-  try {
-    await conn.beginTransaction();
+// const deleteEmployee = async (id) => {
+//   const conn = await getConnection();
+//   try {
+//     await conn.beginTransaction();
 
-    // First delete from related tables
-    await conn.query("DELETE FROM employee_info WHERE employee_id = ?", [id]);
-    await conn.query("DELETE FROM employee_pass WHERE employee_id = ?", [id]);
-    await conn.query("DELETE FROM employee_role WHERE employee_id = ?", [id]);
+//     // Delete associated rows in the orders table
+//     await conn.query("DELETE FROM orders WHERE employee_id = ?", [id]);
 
-    // Then delete from main employee table
-    const query = "DELETE FROM employee WHERE employee_id = ?";
-    const [result] = await conn.query(query, [id]);
+//     // Delete from related tables
+//     await conn.query("DELETE FROM employee_info WHERE employee_id = ?", [id]);
+//     await conn.query("DELETE FROM employee_pass WHERE employee_id = ?", [id]);
+//     await conn.query("DELETE FROM employee_role WHERE employee_id = ?", [id]);
 
-    await conn.commit();
-    return result.affectedRows > 0;
-  } catch (error) {
-    await conn.rollback();
-    console.error("Error deleting employee:", error);
-    throw error;
-  } finally {
-    conn.release();
+//     // Delete from main employee table
+//     const query = "DELETE FROM employee WHERE employee_id = ?";
+//     const [result] = await conn.query(query, [id]);
+
+//     await conn.commit();
+//     return result.affectedRows > 0;
+//   } catch (error) {
+//     await conn.rollback();
+//     console.error("Error deleting employee:", error);
+//     throw error;
+//   } finally {
+//     conn.release();
+//   }
+// };
+
+async function deleteEmployee(id) {
+  const connection = await getConnection();
+
+  if (!id) {
+    return false;
   }
-};
+
+  try {
+    await connection.beginTransaction();
+
+    const sql1 = "DELETE FROM `employee_role` WHERE `employee_id` = ?";
+
+    const sql2 = "DELETE FROM `employee_info` WHERE `employee_id` = ?";
+
+    const sql3 = "DELETE FROM `employee_pass` WHERE `employee_id` = ?";
+
+    const sql4 = "DELETE FROM `employee` WHERE `employee_id` = ?";
+
+    const [row1] = await connection.query(sql1, [id]);
+
+    if (row1.affectedRows !== 1) {
+      throw new Error("Failed to delete employee role");
+    }
+
+    const [row2] = await connection.query(sql2, [id]);
+
+    if (row2.affectedRows !== 1) {
+      throw new Error("Failed to delete employee info");
+    }
+
+    const [row3] = await connection.query(sql3, [id]);
+
+    if (row3.affectedRows !== 1) {
+      throw new Error("Failed to delete employee pass");
+    }
+
+    const [row4] = await connection.query(sql4, [id]);
+
+    if (row4.affectedRows !== 1) {
+      throw new Error("Failed to delete employee");
+    }
+
+    await connection.commit();
+
+    return true;
+  } catch (error) {
+    await connection.rollback();
+    return false;
+  } finally {
+    connection.release();
+  }
+}
 
 module.exports = {
   checkEmployeeList,
