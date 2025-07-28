@@ -21,7 +21,11 @@ const AddCustomer = () => {
     e.preventDefault();
     setMessage("");
     try {
-      const response = await axios.post("/customer/add-customer", formData); // Adjust endpoint if needed
+      const response = await axios.post("/customer/add-customer", formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }); // Adjust endpoint if needed
       setMessage("Customer added successfully!");
       setFormData({
         customer_email: "",

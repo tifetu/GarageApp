@@ -15,7 +15,7 @@ const EditEmployee = () => {
     active_employee: 1,
     company_role_id: "",
   });
-  const [roles, setRoles] = useState([]);
+  // const [roles, setRoles] = useState([]);
 
   // Fetch employee data and roles
   useEffect(() => {
@@ -32,7 +32,7 @@ const EditEmployee = () => {
           company_role_id: employeeRes.data.company_role_id.toString(),
         });
 
-        setRoles(rolesRes.data);
+        // setRoles(rolesRes.data);
       } catch (err) {
         toast.error("Failed to load employee data");
         console.error(err);

@@ -10,6 +10,8 @@ import EditEmployee from "./components/Admin/EditEmployee/EditEmployee";
 import CustomerPage from "./pages/CustomerPages/CustomerPage";
 import CustomerListPage from "./pages/CustomerPages/CustomerListPage";
 
+import EditCustomerPage from "./pages/CustomerPages/EditCustomerPage";
+
 function App() {
   return (
     <>
@@ -22,6 +24,10 @@ function App() {
         <Route path="/employee/:id" element={<EditEmployee />} />
         <Route path="/add-customer" element={<CustomerPage />} />
         <Route path="/customers" element={<CustomerListPage />} />
+        <Route
+          path="/customer/edit/:customerId"
+          element={<EditCustomerPage />}
+        />
       </Routes>
       <Footer />
     </>

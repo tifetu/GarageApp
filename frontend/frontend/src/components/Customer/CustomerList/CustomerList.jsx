@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Pencil, Search } from "lucide-react";
+import { Link } from "react-router-dom";
 import axios from "../../../utils/axios";
 
 const CustomerList = () => {
@@ -93,7 +94,9 @@ const CustomerList = () => {
                     {customer.active_customer_status ? "Yes" : "No"}
                   </td>
                   <td className="px-4 py-2 border text-blue-600 hover:text-blue-800 cursor-pointer">
-                    <Pencil size={16} />
+                    <Link to={`/customer/edit/${customer.customer_id}`}>
+                      <Pencil size={16} />
+                    </Link>
                   </td>
                 </tr>
               ))}

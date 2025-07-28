@@ -106,7 +106,7 @@ function AddEmployeeForm() {
                 type="email"
                 name="employee_email"
                 placeholder="Employee email"
-                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-600"
+                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-transparent text-gray-600"
                 value={employee.employee_email}
                 onChange={handleChange}
                 required
@@ -118,7 +118,7 @@ function AddEmployeeForm() {
                 type="text"
                 name="employee_first_name"
                 placeholder="Employee first name"
-                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-600"
+                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-transparent text-gray-600"
                 value={employee.employee_first_name}
                 onChange={handleChange}
                 required
@@ -130,7 +130,7 @@ function AddEmployeeForm() {
                 type="text"
                 name="employee_last_name"
                 placeholder="Employee last name"
-                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-600"
+                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-transparent text-gray-600"
                 value={employee.employee_last_name}
                 onChange={handleChange}
                 required
@@ -142,10 +142,10 @@ function AddEmployeeForm() {
                 type="tel"
                 name="employee_phone"
                 placeholder="Employee phone (555-555-5555)"
-                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-600"
+                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-transparent text-gray-600"
                 value={employee.employee_phone}
                 onChange={handleChange}
-                pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                // pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
                 required
               />
               <small className="text-gray-500">Format: 123-456-7890</small>
@@ -156,7 +156,7 @@ function AddEmployeeForm() {
                 type="password"
                 name="employee_password_hashed"
                 placeholder="Employee password"
-                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-600"
+                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-transparent text-gray-600"
                 value={employee.employee_password_hashed}
                 onChange={handleChange}
                 minLength="8"
@@ -171,7 +171,7 @@ function AddEmployeeForm() {
               </label>
               <select
                 name="active_employee"
-                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-600"
+                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-transparent text-gray-600"
                 value={employee.active_employee}
                 onChange={handleChange}
               >
@@ -184,7 +184,7 @@ function AddEmployeeForm() {
               <label className="block mb-2 text-gray-700">Employee Role</label>
               <select
                 name="company_role_id"
-                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-600"
+                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-transparent text-gray-600"
                 value={employee.company_role_id}
                 onChange={handleChange}
                 required
