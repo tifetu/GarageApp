@@ -1,7 +1,9 @@
-// components/AdminMenu.jsx
 import { Home, FileText, UserPlus, Users, User, Briefcase } from "lucide-react";
-import { href } from "react-router-dom";
-function AdminMenu({ activeSection, setActiveSection }) {
+import { Link, useLocation } from "react-router-dom";
+
+function AdminMenu() {
+  const location = useLocation();
+
   const adminMenuItems = [
     {
       id: "dashboard",
@@ -59,23 +61,23 @@ function AdminMenu({ activeSection, setActiveSection }) {
         <h2 className="text-lg font-semibold mb-6 text-gray-300">ADMIN MENU</h2>
         <nav className="space-y-1">
           {adminMenuItems.map((item) => (
-            <a
+            <Link
               key={item.id}
-              href={`${item.href}`}
+              to={item.href}
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                activeSection === item.id
+                location.pathname === item.href
                   ? "bg-gray-700 text-white"
                   : "text-gray-300 hover:bg-gray-700 hover:text-white"
               }`}
-              onClick={() => setActiveSection(item.id)}
             >
               <span className="mr-3">{item.icon}</span>
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
       </div>
     </div>
   );
 }
+
 export default AdminMenu;

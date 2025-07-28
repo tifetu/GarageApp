@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import EmployeeListPage from "./pages/Admin/EmployeeList";
 import EditEmployee from "./components/Admin/EditEmployee/EditEmployee";
 import CustomerPage from "./pages/CustomerPages/CustomerPage";
+import CustomerListPage from "./pages/CustomerPages/CustomerListPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/employees" element={<EmployeeListPage />} />
         <Route path="/employee/:id" element={<EditEmployee />} />
         <Route path="/add-customer" element={<CustomerPage />} />
+        <Route path="/customers" element={<CustomerListPage />} />
       </Routes>
       <Footer />
     </>
