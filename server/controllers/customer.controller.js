@@ -47,7 +47,7 @@ async function getCustomerById(req, res) {
     const customer = await customerService.getCustomerById(
       req.params.customerId
     );
-    return res.status(StatusCodes.OK).json(customer);
+    return res.status(StatusCodes.OK).json({ data: customer });
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: "Failed to fetch customer",

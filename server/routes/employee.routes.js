@@ -8,10 +8,7 @@ router.post("/add-employee", employeeController.addEmployee);
 router.get("/employees", employeeController.getEmployees);
 router.get("/:id", employeeController.getEmployeeById);
 router.put("/:id", employeeController.updateEmployee);
-router.delete(
-  "/:id",
-  employeeController.deleteEmployee
-);
+router.delete("/:id", employeeController.deleteEmployee);
 // router.get("/search-employees", employeeController.searchEmployees);
 // Export the router
 module.exports = router;

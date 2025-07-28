@@ -58,7 +58,7 @@ async function getAllCustomers() {
   try {
     // start Transaction
     const [customers] = await conn.query(`
-      SELECT customer_identifier.customer_id, customer_identifier.customer_email, customer_identifier.customer_phone_number,
+      SELECT customer_identifier.customer_id, customer_identifier.customer_email, customer_identifier.customer_phone_number,customer_identifier.customer_added_date,
              customer_info.customer_first_name, customer_info.customer_last_name, 
             customer_info.active_customer_status
       FROM customer_identifier 
@@ -98,34 +98,35 @@ async function updateCustomer(customerId, customerData) {
   try {
     await conn.beginTransaction();
     // Update customer_identifier
-    if (customerData.customer_hash) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(
-        customerData.customer_hash,
-        salt
-      );
-      await conn.query(
-        "UPDATE customer_identifier SET customer_email = ?, customer_phone_number = ?, customer_hash = ? WHERE customer_id = ?",
-        [
-          customerData.customer_email,
-          customerData.customer_phone_number,
-          hashedPassword,
-          customerId,
-        ]
-      );
-      // Update customer_info
-      await conn.query(
-        "UPDATE customer_info SET customer_first_name = ?, customer_last_name = ?, active_customer_status = ? WHERE customer_id = ?",
-        [
-          customerData.customer_first_name,
-          customerData.customer_last_name,
-          customerData.active_customer_status,
-          customerId,
-        ]
-      );
-    }
+    // if (customerData.customer_hash) {
+    //   const salt = await bcrypt.genSalt(10);
+    //   const hashedPassword = await bcrypt.hash(
+    //     customerData.customer_hash,
+    //     salt
+    // );
+    await conn.query(
+      "UPDATE customer_identifier SET customer_email = ?, customer_phone_number = ? WHERE customer_id = ?",
+      [
+        customerData.customer_email,
+        customerData.customer_phone_number,
+
+        customerId,
+      ]
+    );
+    // Update customer_info
+    await conn.query(
+      "UPDATE customer_info SET customer_first_name = ?, customer_last_name = ?, active_customer_status = ? WHERE customer_id = ?",
+      [
+        customerData.customer_first_name,
+        customerData.customer_last_name,
+        customerData.active_customer_status,
+        customerId,
+      ]
+    );
+
     await conn.commit();
-    return getCustomerById(customerId);
+    // === Return joined customer data ===
+    // return await getCustomerById(customerId);
   } catch (error) {
     await conn.rollback();
 
