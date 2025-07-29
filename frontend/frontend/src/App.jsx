@@ -11,6 +11,7 @@ import CustomerPage from "./pages/CustomerPages/CustomerPage";
 import CustomerListPage from "./pages/CustomerPages/CustomerListPage";
 
 import EditCustomerPage from "./pages/CustomerPages/EditCustomerPage";
+import CustomerProfile from "./components/Customer/CustomerProfile/CustomerProfile";
 
 function App() {
   return (
@@ -28,6 +29,8 @@ function App() {
           path="/customer/edit/:customerId"
           element={<EditCustomerPage />}
         />
+        <Route path="/customer/:customerId" element={<CustomerProfile />} />
+        {/* Add more routes as needed */}
       </Routes>
       <Footer />
     </>

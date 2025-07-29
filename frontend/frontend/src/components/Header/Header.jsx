@@ -2,7 +2,10 @@
 import { Menu, X, LogOut } from "lucide-react";
 import logo from "../../assets/images/logo.png";
 import { Link } from "react-router-dom";
+// import UserContext from "../context/UserContex";
+// import { useContext } from "react";
 function Header({ isMenuOpen, setIsMenuOpen }) {
+  // const { user, logout } = useContext(UserContext);
   return (
     <div className=" bg-gray-100">
       {/* Top Banner */}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { User, Pencil, Trash2, Plus } from "lucide-react";
+// import { User, Pencil, Trash2, Plus } from "lucide-react";
 import axios from "../../../utils/axios"; // Adjust the import path as necessary
 import { Link } from "react-router-dom";
-
+import { LiaEdit} from "react-icons/lia"; // Importing icons from react-icons
+import { Trash2 } from "lucide-react";
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -181,7 +182,7 @@ const EmployeeList = () => {
                       to={`/employee/${employee.employee_id}`}
                       className="text-blue-600 hover:text-blue-900 mr-4"
                     >
-                      <Pencil className="inline-block w-4 h-4 hover:cursor-pointer" />
+                      <LiaEdit className="inline-block w-4 h-4 hover:cursor-pointer" />
                     </Link>
 
                     <button

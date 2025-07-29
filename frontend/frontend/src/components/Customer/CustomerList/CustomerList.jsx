@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Pencil, Search } from "lucide-react";
+import { Pencil, Search, Trash2, Edit2 } from "lucide-react";
+import { LiaEdit } from "react-icons/lia";
 import { Link } from "react-router-dom";
 import axios from "../../../utils/axios";
 
@@ -26,6 +27,22 @@ const CustomerList = () => {
       .includes(searchTerm.toLowerCase())
   );
 
+  const handleDeleteCustomer = async (customerId) => {
+    if (window.confirm("Are you sure you want to delete this customer?")) {
+      try {
+        await axios.delete(`/customer/${customerId}`);
+        setCustomerList((prev) =>
+          prev.filter((customer) => customer.customer_id !== customerId)
+        );
+        alert("Customer deleted successfully.");
+      } catch (error) {
+        console.error("Error deleting customer:", error);
+      }
+    }
+  };
+  if (!CustomerList) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="bg-white rounded shadow p-6">
@@ -94,8 +111,23 @@ const CustomerList = () => {
                     {customer.active_customer_status ? "Yes" : "No"}
                   </td>
                   <td className="px-4 py-2 border text-blue-600 hover:text-blue-800 cursor-pointer">
-                    <Link to={`/customer/edit/${customer.customer_id}`}>
-                      <Pencil size={16} />
+                    <Link
+                      to={`/customer/edit/${customer.customer_id}`}
+                      className="text-blue-600 hover:text-blue-900 mr-4"
+                    >
+                      <LiaEdit
+                        size={20}
+                        className="inline-block w-4 h-4 hover:cursor-pointer"
+                      />
+                    </Link>
+                    <Link
+                      onClick={() => handleDeleteCustomer(customer.customer_id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <Trash2
+                        size={16}
+                        className="inline-block w-4 h-4 hover:cursor-pointer"
+                      />
                     </Link>
                   </td>
                 </tr>
