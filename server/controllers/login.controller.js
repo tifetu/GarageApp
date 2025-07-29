@@ -4,11 +4,7 @@ const Jwt_secret = process.env.JWT_SECRET;
 
 async function login(req, res, next) {
   try {
-    if (
-      !req.body ||
-      !req.body.employee_email ||
-      !req.body.employee_password_hashed
-    ) {
+    if (!req.body.employee_email || !req.body.employee_password_hashed) {
       return res.status(400).json({
         status: "Fail",
         message:

@@ -67,6 +67,8 @@ async function getAllCustomers() {
     return customers;
   } catch (error) {
     throw new Error("sommthing");
+  } finally {
+    conn.release();
   }
 }
 async function getCustomerById(customerId) {
@@ -126,7 +128,7 @@ async function updateCustomer(customerId, customerData) {
 
     await conn.commit();
     // === Return joined customer data ===
-    // return await getCustomerById(customerId);
+    return await getCustomerById(customerId);
   } catch (error) {
     await conn.rollback();
 
@@ -139,6 +141,12 @@ async function deleteCustomer(customerId) {
   const conn = await getConnection();
   try {
     await conn.beginTransaction();
+    // First delete from customer_vehicle_info
+    await conn.query(
+      "DELETE FROM customer_vehicle_info WHERE customer_id = ?",
+      [customerId]
+    );
+
     // First delete from customer_info
     await conn.query("DELETE  FROM customer_info WHERE customer_id = ?", [
       customerId,
