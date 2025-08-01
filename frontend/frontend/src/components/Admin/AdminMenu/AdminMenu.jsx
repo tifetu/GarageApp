@@ -8,7 +8,7 @@ function AdminMenu() {
     {
       id: "dashboard",
       label: "Dashboard",
-      href: "/",
+      href: "/admin",
       icon: <Home className="w-5 h-5" />,
     },
     {

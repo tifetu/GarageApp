@@ -3,8 +3,11 @@ import { Pencil } from "lucide-react";
 import { LiaEdit } from "react-icons/lia";
 import { Link, useParams } from "react-router-dom";
 import axios from "../../../utils/axios";
+import AddVehicle from "../../Vehicle/AddVehicle";
 const CustomerProfile = () => {
   const { customerId } = useParams();
+  const [showAddVehicle, setShowAddVehicle] = useState(false);
+
   const [customer, setCustomer] = useState({
     vehicles: [],
   });
@@ -98,20 +101,18 @@ const CustomerProfile = () => {
               </span>
             </h3>
             <div className="bg-white shadow p-4 rounded">
-              {/* {customer.vehicles.length === 0 ? (
-                <p className="text-gray-500">No vehicle found</p>
-              ) : (
-                <ul className="space-y-2">
-                  {customer.vehicles.map((car, i) => (
-                    <li key={i} className="text-gray-700">
-                      {car.make} - {car.model} ({car.year})
-                    </li>
-                  ))}
-                </ul>
-              )} */}
-              <button className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                ADD NEW VEHICLE
+              <button
+                onClick={() => setShowAddVehicle(!showAddVehicle)}
+                className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                {showAddVehicle ? "CLOSE FORM" : "ADD NEW VEHICLE"}
               </button>
+
+              {showAddVehicle && (
+                <div className="mt-6">
+                  <AddVehicle customerId={customerId} />
+                </div>
+              )}
             </div>
           </div>
 

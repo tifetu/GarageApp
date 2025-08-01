@@ -37,19 +37,27 @@ function LoginForm() {
 
     try {
       // Replace with your actual API endpoint
-      const response = await axios.post("/auth/login", {
-        employee_email: formData.employee_email,
-        employee_password_hashed: formData.employee_password_hashed,
-      });
+      const response = await axios.post(
+        "/auth/login",
+        {
+          employee_email: formData.employee_email,
+          employee_password_hashed: formData.employee_password_hashed,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const { token, employee } = response.data;
-
-      // Save token and user info
-      localStorage.setItem("authToken", token);
-      localStorage.setItem("employee", JSON.stringify(employee));
-
-      // Redirect to dashboard
-      navigate("/dashboard");
+      if (response.status === StatusCodes.OK) {
+        localStorage.setItem("authToken", response.data.data.token);
+        localStorage.setItem(
+          "employee",
+          JSON.stringify(response.data.data.employee)
+        ); // ✅ works now
+        navigate("/dashboard"); // or wherever
+      }
     } catch (err) {
       const message =
         err.response?.data?.message || "Invalid credentials. Please try again.";

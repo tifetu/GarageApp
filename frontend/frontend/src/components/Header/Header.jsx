@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 function Header({ isMenuOpen, setIsMenuOpen }) {
   // const { user, logout } = useContext(UserContext);
   return (
-    <div className=" bg-gray-100">
+    <div className=" bg-gray-100 sticky top-0 z-50">
       {/* Top Banner */}
       <div className=" text-white bg-red-600 flex justify-between items-center text-sm">
         <div className=" px-4 py-2">Enjoy the Beso while we fix your car</div>
@@ -35,7 +35,7 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-8">
               <Link
-                to="/add-employee"
+                to="/"
                 className="text-gray-700 hover:text-red-600 transition-colors font-medium"
               >
                 HOME
