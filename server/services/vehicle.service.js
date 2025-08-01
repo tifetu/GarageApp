@@ -4,59 +4,95 @@ const { getConnection } = require("../config/db.config");
 async function createVehicle(vehicleData) {
   const conn = await getConnection();
   try {
-    // Log the vehicleData for debugging
     console.log("Vehicle Data:", vehicleData);
 
-    // Validate customer_id
-    if (!vehicleData.customer_id) {
-      throw new Error("customer_id is required");
+    // Validate required fields
+    const requiredFields = [
+      "customer_id",
+      "vehicle_year",
+      "vehicle_make",
+      "vehicle_model",
+      "vehicle_tag",
+      "vehicle_serial",
+      "vehicle_color",
+    ];
+
+    const missingFields = requiredFields.filter((field) => !vehicleData[field]);
+    if (missingFields.length > 0) {
+      throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
+    }
+
+    // Validate field types
+    if (isNaN(vehicleData.vehicle_year)) {
+      throw new Error("vehicle_year must be a number");
+    }
+
+    if (vehicleData.vehicle_mileage && isNaN(vehicleData.vehicle_mileage)) {
+      throw new Error("vehicle_mileage must be a number");
     }
 
     // Start transaction
     await conn.beginTransaction();
 
-    // Check if customer exists in customer_identifier table
+    // Check if customer exists
     const [customer] = await conn.query(
       "SELECT customer_id FROM customer_identifier WHERE customer_id = ?",
       [vehicleData.customer_id]
     );
 
     if (customer.length === 0) {
-      throw new Error("Customer not found in customer_identifier table");
+      throw new Error("Customer not found");
     }
 
-    // Insert into customer_vehicle_info table
+    // Insert vehicle
     const [result] = await conn.query(
-      `INSERT INTO customer_vehicle_info(customer_id,vehicle_year,vehicle_make,vehicle_model,vehicle_type,vehicle_mileage,vehicle_tag,vehicle_serial, vehicle_color) VALUES(?,?,?,?,?,?,?,?,?)`,
+      `INSERT INTO customer_vehicle_info(
+        customer_id,
+        vehicle_year,
+        vehicle_make,
+        vehicle_model,
+        vehicle_type,
+        vehicle_mileage,
+        vehicle_tag,
+        vehicle_serial,
+        vehicle_color
+      ) VALUES(?,?,?,?,?,?,?,?,?)`,
       [
         vehicleData.customer_id,
-        vehicleData.vehicle_year,
+        parseInt(vehicleData.vehicle_year),
         vehicleData.vehicle_make,
         vehicleData.vehicle_model,
-        vehicleData.vehicle_type,
-        vehicleData.vehicle_mileage || 0,
+        vehicleData.vehicle_type || null,
+        vehicleData.vehicle_mileage ? parseInt(vehicleData.vehicle_mileage) : 0,
         vehicleData.vehicle_tag,
         vehicleData.vehicle_serial,
         vehicleData.vehicle_color,
       ]
     );
 
-    // Commit transaction
     await conn.commit();
+
     return {
+      success: true,
       vehicle_id: result.insertId,
-      vehicleData,
+      message: "Vehicle created successfully",
     };
   } catch (error) {
     await conn.rollback();
     console.error("Error creating vehicle:", error);
-    throw error;
+
+    // Return error information
+    return {
+      success: false,
+      error: error.message,
+      message: "Failed to create vehicle",
+    };
   } finally {
-    conn.release();
+    if (conn) conn.release();
   }
 }
 // get all vehicle
-async function getAllVehicle(customerId) {
+async function getVehiclesByCustomerId(customerId) {
   const conn = await getConnection();
   try {
     // select data from database
@@ -77,12 +113,13 @@ async function getVehicleBySerial(serial) {
   const conn = await getConnection();
   try {
     const [vehicle] = await conn.query(
-      "SELECT *FROM customr_vehicle_info WHERE vehicle_serial=?",
+      "SELECT * FROM customer_vehicle_info WHERE vehicle_serial = ?",
       [serial]
     );
     return vehicle;
   } catch (error) {
-    throw new Error("something was wrong");
+    console.error("Error fetching vehicle by serial:", error);
+    throw new Error("Error fetching vehicle by serial number");
   } finally {
     conn.release();
   }
@@ -107,7 +144,6 @@ async function getVehicleById(vehicleId) {
   } finally {
     conn.release();
   }
-  
 }
 
 // Update vehicle
@@ -168,7 +204,7 @@ async function updateVehicle(vehicleId, vehicleData) {
 // export function
 module.exports = {
   createVehicle,
-  getAllVehicle,
+  getVehiclesByCustomerId,
   getVehicleBySerial,
   getVehicleById,
   updateVehicle,

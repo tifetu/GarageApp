@@ -170,11 +170,43 @@ async function deleteCustomer(customerId) {
     conn.release();
   }
 }
+// searche
+const searchCustomers = async (searchText) => {
+  const conn = await getConnection();
+  try {
+    console.log("🔧 Searching with:", searchText);
+    const sql = `
+      SELECT 
+        ci.customer_id, 
+        ci.customer_email, 
+        ci.customer_phone_number,
+        info.customer_first_name, 
+        info.customer_last_name, 
+        info.active_customer_status
+      FROM customer_identifier ci
+      JOIN customer_info info ON ci.customer_id = info.customer_id
+      WHERE CONCAT_WS(' ', info.customer_first_name, info.customer_last_name, 
+                      ci.customer_email, ci.customer_phone_number) 
+      LIKE ?
+      LIMIT 20
+    `;
+    const [customers] = await conn.query(sql, [`%${searchText}%`]);
+    return customers;
+  } catch (error) {
+    console.error("❌ SQL Error:", error);
+    throw error;
+  } finally {
+    if (conn) conn.release?.();
+  }
+};
+
+
 module.exports = {
   createCustomer,
   checkIfCustomerExist,
   getAllCustomers,
   getCustomerById,
+  searchCustomers,
   updateCustomer,
   deleteCustomer,
 };

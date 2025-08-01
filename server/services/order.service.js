@@ -145,6 +145,7 @@ const getAllOrders = async () => {
 // Get complete order details
 const getOrderById = async (orderId) => {
   const conn = await getConnection();
+  
   try {
     // Get order header info
     const [orders] = await conn.query(

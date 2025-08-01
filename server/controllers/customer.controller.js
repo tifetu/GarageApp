@@ -90,10 +90,36 @@ async function deleteCustomer(req, res) {
       .json({ message: "something with wrong" });
   }
 }
+// search customers
+
+
+async function searchCustomers(req, res) {
+  try {
+    const searchText = req.query.searchText || "";
+    console.log("🔍 searchText received:", searchText);
+
+    const customers = await customerService.searchCustomers(searchText);
+
+    return res.status(StatusCodes.OK).json({
+      data: customers,
+      count: customers.length,
+    });
+  } catch (error) {
+    console.error("❌ Error in searchCustomers controller:", error);
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "something went wrong",
+      error: error.message,
+    });
+  }
+}
+
+
 module.exports = {
   createCustomer,
   getAllCustomers,
   getCustomerById,
   updateCustomer,
   deleteCustomer,
+  searchCustomers,
 };

@@ -20,11 +20,7 @@ router.delete(
   customerController.deleteCustomer
 );
 // Search customers by name
-// router.get(
-//   "/search-customers",
-//   authMiddleware,
-//   customerController.searchCustomers
-// );
+router.get("/customer/search", customerController.searchCustomers);
 
 // export
 module.exports = router;

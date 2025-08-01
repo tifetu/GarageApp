@@ -3,19 +3,8 @@ const { StatusCodes } = require("http-status-codes");
 
 // function of create vehicle on controller
 async function createVehicle(req, res) {
-  // Log the request body for debugging
-  console.log("Request Body:", req.body);
-
-  // Validate request body
-  if (!req.body.customer_id) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: "customer_id is required" });
-  }
-
   try {
     const vehicle = await vehicleService.createVehicle(req.body);
-
     if (vehicle) {
       return res
         .status(StatusCodes.CREATED)
@@ -32,9 +21,11 @@ async function createVehicle(req, res) {
   }
 }
 // get vehicle
-async function getAllVehicle(req, res) {
+async function getVehiclesByCustomerId(req, res) {
   try {
-    const vehicle = await vehicleService.getAllVehicle(req.params.customerId);
+    const vehicle = await vehicleService.getVehiclesByCustomerId(
+      req.params.customerId
+    );
     return res.status(StatusCodes.OK).json({ vehicle });
   } catch (error) {
     return res
@@ -73,7 +64,7 @@ async function updateVehicle(req, res) {
 // exports function
 module.exports = {
   createVehicle,
-  getAllVehicle,
+  getVehiclesByCustomerId,
   getVehicleBySerial,
   getVehicleById,
   updateVehicle,
