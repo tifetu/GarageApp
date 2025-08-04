@@ -5,6 +5,7 @@ const loginRoutes = require("./login.routes.js");
 const customerRoutes = require("./customer.routes.js");
 const vehicleRoutes = require("./vehicle.routes.js");
 const orderRoutes = require("./order.routes.js");
+const serviceRoutes = require("./service.routes.js");
 const router = express.Router();
 
 // Use the install routes
@@ -18,5 +19,7 @@ router.use("/api/customer", customerRoutes);
 router.use("/api/vehicle", vehicleRoutes);
 // Use order routes
 router.use("/api/order", orderRoutes);
+// use service routes
+router.use("/api/services", serviceRoutes);
 // Export the router
 module.exports = router;

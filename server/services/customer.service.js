@@ -200,7 +200,6 @@ const searchCustomers = async (searchText) => {
   }
 };
 
-
 module.exports = {
   createCustomer,
   checkIfCustomerExist,
