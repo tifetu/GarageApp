@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Eye, EyeOff, User, Lock, Car } from "lucide-react";
 import axios from "../../utils/axios"; // Adjust the import path as necessary
 import { useNavigate } from "react-router-dom"; // For redirection
+import { useAuth } from "../../utils/context/UserContext";
 
 function LoginForm() {
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     employee_email: "",
@@ -13,14 +15,6 @@ function LoginForm() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-
-  // Optional: Check if user is already logged in
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      navigate("/dashboard", { replace: true }); // Redirect if already logged in
-    }
-  }, [navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -36,32 +30,22 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      // Replace with your actual API endpoint
-      const response = await axios.post(
-        "/auth/login",
-        {
-          employee_email: formData.employee_email,
-          employee_password_hashed: formData.employee_password_hashed,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post("/auth/login", {
+        employee_email: formData.employee_email,
+        employee_password_hashed: formData.employee_password_hashed,
+      });
 
-      if (response.status === StatusCodes.OK) {
-        localStorage.setItem("authToken", response.data.data.token);
-        localStorage.setItem(
-          "employee",
-          JSON.stringify(response.data.data.employee)
-        ); // ✅ works now
-        navigate("/dashboard"); // or wherever
+      if (response.data.status === "Success") {
+        const token = response.data.data.token;
+        login(token);
+        navigate("/admin", { replace: true });
+      } else {
+        setError(response.data.message || "Login failed");
       }
     } catch (err) {
-      const message =
+      const errorMessage =
         err.response?.data?.message || "Invalid credentials. Please try again.";
-      setError(message);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -72,28 +56,6 @@ function LoginForm() {
       <div className="w-full max-w-md">
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          {/* Header (Uncomment if you want it back) */}
-          {/* 
-          <div className="bg-gradient-to-r from-red-600 to-red-700 px-8 py-12 text-center">
-            <div className="flex justify-center mb-6">
-              <div className="bg-white rounded-full p-4 shadow-lg">
-                <Car className="w-12 h-12 text-red-600" />
-              </div>
-            </div>
-            <div className="flex items-center justify-center mb-4">
-              <div className="bg-red-600 text-white px-4 py-2 rounded-l-full">
-                <span className="font-bold text-2xl">ABE</span>
-              </div>
-              <div className="bg-gray-800 text-white px-4 py-2 rounded-r-full">
-                <span className="font-bold text-2xl">GARAGE</span>
-              </div>
-            </div>
-            <p className="text-red-100 text-sm font-medium tracking-wide">
-              AUTO REPAIR MANAGEMENT
-            </p>
-          </div> 
-          */}
-
           {/* Login Form */}
           <div className="px-8 py-10">
             <div className="text-center mb-8">

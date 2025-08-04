@@ -1,13 +1,18 @@
 // components/Header.jsx
 import { Menu, X, LogOut } from "lucide-react";
 import logo from "../../assets/images/logo.png";
-import { Link } from "react-router-dom";
-// import UserContext from "../context/UserContex";
-// import { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../utils/context/UserContext";
 function Header({ isMenuOpen, setIsMenuOpen }) {
-  // const { user, logout } = useContext(UserContext);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
-    <div className=" bg-gray-100 sticky top-0 z-50">
+    <div className=" bg-gray-100 sticky top-0">
       {/* Top Banner */}
       <div className=" text-white bg-red-600 flex justify-between items-center text-sm">
         <div className=" px-4 py-2">Enjoy the Beso while we fix your car</div>
@@ -64,13 +69,22 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
               >
                 ADMIN
               </Link>
-              <Link
-                to="/login"
-                className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors flex items-center"
-              >
-                {/* <LogOut className="w-4 h-4 mr-2" /> */}
-                LOG OUT
-              </Link>
+
+              {user.isAuthenticated ? (
+                <button
+                  onClick={handleLogout}
+                  className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors flex items-center"
+                >
+                  LOG OUT
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 transition-colors flex items-center"
+                >
+                  LOGIN
+                </Link>
+              )}
             </div>
 
             {/* Mobile Menu Button */}

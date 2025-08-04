@@ -12,8 +12,7 @@ import CustomerListPage from "./pages/CustomerPages/CustomerListPage";
 
 import EditCustomerPage from "./pages/CustomerPages/EditCustomerPage";
 import CustomerProfile from "./components/Customer/CustomerProfile/CustomerProfile";
-// import AddNewOrder from "./components/Orders/AddNewOrder/AddNewOrder";
-// import AddVehicleForm from "./components/Vehicle/AddVehicle/AddVehicleForm";
+
 import Contact from "./components/common/Contacts/Contact";
 import ServicesPage from "./pages/ServicesPage/ServicesPage";
 
@@ -22,9 +21,11 @@ import AboutPage from "./pages/AboutPage/AboutPage";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import AddVehicle from "./components/Vehicle/AddVehicle";
 import Orders1Page from "./pages/Orders/Orders1Page";
-import { CreateOrder } from "./pages/Orders/CreateOrder";
+// import { CreateOrder } from "./pages/Orders/CreateOrder";
 import OrderDetail from "./components/Orders/OrderDetail/OrderDetail";
-
+import NewOrder from "./components/Orders/NewOrderList/NewOrder";
+import AddNewOrder from "./components/Orders/AddNewOrder/AddNewOrder";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 function App() {
   return (
     <>
@@ -45,16 +46,31 @@ function App() {
         <Route path="/customer/:customerId" element={<CustomerProfile />} />
         <Route path="/orders/new" element={<Orders1Page />} />
         <Route path="/add-vehicle" element={<AddVehicle />} />
-        {/* <Route path="/vehicle/add/:customerId" element={<AddVehicleForm />} /> */}
-        {/* <Route path="/vehicle/add" element={<AddVehicleForm />} /> */}
+
         <Route path="/contact" element={<Contact />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/admin" element={<DashboardPage />} />
-        <Route path="/orders" element={<CreateOrder />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <NewOrder />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/order/new/:customerId" element={<OrderDetail />} />
-
-        {/* <Route path="/order/:orderId/edit" element={<EditOrder />} /> */}
+        <Route
+          path="/orders/new/:customerId/vehicle/:vehicleId"
+          element={<NewOrder />}
+        />
       </Routes>
       <Footer />
     </>

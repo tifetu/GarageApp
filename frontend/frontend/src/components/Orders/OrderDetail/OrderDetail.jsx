@@ -34,7 +34,7 @@ const OrderDetail = () => {
 
   const handleSelectVehicle = (vehicleId) => {
     setSelectedVehicle(vehicleId);
-    navigate(`/orders/create/${customerId}/vehicle/${vehicleId}`);
+    navigate(`/orders/new/${customerId}/vehicle/${vehicleId}`);
   };
 
   const handleBack = () => navigate(-1);

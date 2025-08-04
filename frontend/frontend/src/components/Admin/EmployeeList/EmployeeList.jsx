@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 // import { User, Pencil, Trash2, Plus } from "lucide-react";
 import axios from "../../../utils/axios"; // Adjust the import path as necessary
 import { Link } from "react-router-dom";
-import { LiaEdit} from "react-icons/lia"; // Importing icons from react-icons
+import { LiaEdit } from "react-icons/lia"; // Importing icons from react-icons
 import { Trash2 } from "lucide-react";
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
@@ -12,12 +12,18 @@ const EmployeeList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [employeesPerPage] = useState(10);
   const [deletingId, setDeletingId] = useState(null);
-  // const navigate = useNavigate();
-  // const id = useParams();
+
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await axios.get("/employee/employees");
+        const token = localStorage.getItem("token");
+
+        const response = await axios.get("/employee/employees", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         console.log("Fetched employees:", response.data);
         setEmployees(response.data);
         setLoading(false);

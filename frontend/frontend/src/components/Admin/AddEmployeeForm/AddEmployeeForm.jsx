@@ -1,5 +1,5 @@
 // components/AddEmployeeForm.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "../../../utils/axios";
 
 function AddEmployeeForm() {
@@ -16,7 +16,13 @@ function AddEmployeeForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-
+  const [authError, setAuthError] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setAuthError(true);
+    }
+  }, []);
   const handleChange = (e) => {
     e.preventDefault();
     const { name, value } = e.target;
@@ -33,7 +39,6 @@ function AddEmployeeForm() {
     setSuccess(false);
 
     try {
-      // Basic validation
       if (!employee.employee_email.includes("@")) {
         throw new Error("Please enter a valid email address");
       }
@@ -41,19 +46,17 @@ function AddEmployeeForm() {
         throw new Error("Password must be at least 8 characters");
       }
 
-      const response = await axios.post(
-        "/employee/add-employee", // Your API endpoint
-        employee,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const token = localStorage.getItem("token");
+
+      const response = await axios.post("/employee/add-employee", employee, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.status === 201) {
         setSuccess(true);
-        // Reset form
         setEmployee({
           employee_email: "",
           employee_first_name: "",
